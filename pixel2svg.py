@@ -128,7 +128,8 @@ if __name__ == "__main__":
                                                "{0}px".format(arguments.squaresize + arguments.overlap)),
                                        fill = svgwrite.rgb(rgb_tuple[0],
                                                            rgb_tuple[1],
-                                                           rgb_tuple[2])))
+                                                           rgb_tuple[2]),
+                                       opacity = rgb_tuple[3]/float(255)))
 
             colcount = colcount + 1
 
