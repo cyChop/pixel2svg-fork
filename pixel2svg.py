@@ -3,10 +3,10 @@
 """pixel2svg - Convert pixel art to SVG
 
    Copyright 2011 Florian Berger <fberger@florian-berger.de>
+   Copyright 2015 Cyrille Chopelet
+   Copyright 2020 Ale Rimoldi <ale@graphicslab.org>
 """
 
-# This file is part of pixel2svg.
-#
 # pixel2svg is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -20,70 +20,42 @@
 # You should have received a copy of the GNU General Public License
 # along with pixel2svg.  If not, see <http://www.gnu.org/licenses/>.
 
-# Work started on Thu Jul 21 2011.
+import argparse
 
-# Python 3
-#
-#import argparse
-
-# Python 2
-#
-import optparse
-
+import os.path
 import PIL.Image
 import svgwrite
-import os.path
 
-VERSION = "0.4.0"
+VERSION = "0.5.0"
 
 if __name__ == "__main__":
 
+    argument_parser = argparse.ArgumentParser(description="Convert pixel art to SVG")
 
-    # Notes for Python 3, once PIL supports it
-    #
-    #argument_parser = argparse.ArgumentParser(description="Convert pixel art to SVG")
-    #
-    #argument_parser.add_argument("IMAGEFILE",
-    #                             help = "The image file to convert")
-    #
-    #argument_parser.add_argument("--overlap",
-    #                             action = "store_true",
-    #                             help = "If given, overlap vector squares by 1px")
-    #
-    #argument_parser.add_argument("--version",
-    #                             action = "version",
-    #                             version = VERSION,
-    #                             help = "Display the program version")
-    #
-    #arguments = argument_parser.parse_args()
+    argument_parser.add_argument("imagefile",
+                                 help="The image file to convert")
 
-    argument_parser = optparse.OptionParser(description="Convert pixel art to SVG",
-                                            usage = "pixel2svg [--overlap] IMAGEFILE",
-                                            version = VERSION)
+    argument_parser.add_argument("--overlap",
+                                 action="store_true",
+                                 help="If given, overlap vector squares by 1px")
 
-    argument_parser.add_option("--squaresize",
-                               type = "int",
-                               default = 40,
-                               help = "Width and height of vector squares in pixels, default: 40")
+    argument_parser.add_argument("--version",
+                                 action="version",
+                                 version=VERSION,
+                                 help="Display the program version")
 
-    argument_parser.add_option("--overlap",
-                               action = "store_const",
-                               const = 1,
-                               default = 0,
-                               help = "If given, overlap vector squares by 1px")
+    argument_parser.add_argument("--squaresize",
+                                 type=int,
+                                 default=40,
+                                 help="Width and height of vector squares in pixels, default: 40")
 
-    arguments, positional = argument_parser.parse_args()
 
-    if not len(positional):
-
-        argument_parser.print_help()
-
-        raise SystemExit
+    arguments = argument_parser.parse_args()
 
     print("pixel2svg {0}".format(VERSION))
-    print("Reading image file '{0}'".format(positional[0]))
+    print("Reading image file '{0}'".format(arguments.imagefile))
 
-    image = PIL.Image.open(positional[0])
+    image = PIL.Image.open(arguments.imagefile)
 
     print("Converting image to RGBA")
 
@@ -97,9 +69,9 @@ if __name__ == "__main__":
 
     print("Read {0} pixels".format(len(rgb_values)))
 
-    svgdoc = svgwrite.Drawing(filename = os.path.splitext(positional[0])[0] + ".svg",
-                              size = ("{0}px".format(width * arguments.squaresize),
-                                      "{0}px".format(height * arguments.squaresize)))
+    svgdoc = svgwrite.Drawing(filename=os.path.splitext(arguments.imagefile)[0] + ".svg",
+                              size=("{0}px".format(width * arguments.squaresize),
+                                    "{0}px".format(height * arguments.squaresize)))
 
     # If --overlap is given, use a slight overlap to prevent inaccurate SVG rendering
     rectangle_size = ("{0}px".format(arguments.squaresize + arguments.overlap),
@@ -120,7 +92,6 @@ if __name__ == "__main__":
             rgb_tuple = rgb_values.pop(0)
 
             # Omit transparent pixels
-            #
             if rgb_tuple[3] > 0:
 
                 rectangle_posn = ("{0}px".format(colcount * arguments.squaresize),
@@ -129,14 +100,14 @@ if __name__ == "__main__":
 
                 alpha = rgb_tuple[3];
                 if alpha == 255:
-                    svgdoc.add(svgdoc.rect(insert = rectangle_posn,
-                                           size = rectangle_size,
-                                           fill = rectangle_fill))
+                    svgdoc.add(svgdoc.rect(insert=rectangle_posn,
+                                           size=rectangle_size,
+                                           fill=rectangle_fill))
                 else:
-                    svgdoc.add(svgdoc.rect(insert = rectangle_posn,
-                                           size = rectangle_size,
-                                           fill = rectangle_fill,
-                                           opacity = alpha/float(255)))
+                    svgdoc.add(svgdoc.rect(insert=rectangle_posn,
+                                           size=rectangle_size,
+                                           fill=rectangle_fill,
+                                           opacity=alpha/float(255)))
 
             colcount = colcount + 1
 
