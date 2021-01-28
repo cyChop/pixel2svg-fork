@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """pixel2svg - Convert pixel art to SVG
 
